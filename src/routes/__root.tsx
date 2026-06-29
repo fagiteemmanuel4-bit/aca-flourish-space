@@ -83,9 +83,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Lumio is the calm, organized home for your class notes, homework and past exams. Built for personal academic growth." },
       { name: "author", content: "Lumio" },
       { property: "og:title", content: "Lumio — Your study, illuminated" },
-      { property: "og:description", content: "A calm, organized home for class notes, homework and past exams." },
+      { property: "og:description", content: "Lumio is the calm, organized home for your class notes, homework and past exams. Built for personal academic growth." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Lumio — Your study, illuminated" },
+      { name: "twitter:description", content: "Lumio is the calm, organized home for your class notes, homework and past exams. Built for personal academic growth." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/62e830e6-83ed-4ddb-a57b-cb05751e503d/id-preview-3c192c3d--08555808-a10e-457e-8e41-b427242f611c.lovable.app-1782773736777.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/62e830e6-83ed-4ddb-a57b-cb05751e503d/id-preview-3c192c3d--08555808-a10e-457e-8e41-b427242f611c.lovable.app-1782773736777.png" },
     ],
     links: [
       {
