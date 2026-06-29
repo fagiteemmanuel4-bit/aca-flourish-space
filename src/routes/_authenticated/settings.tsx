@@ -1,8 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ShieldCheck, ShieldOff, Loader2, Mail, User as UserIcon, Sparkles } from "lucide-react";
+import { ShieldCheck, ShieldOff, Loader2, Mail, User as UserIcon, Sparkles, Zap, CreditCard, ArrowRight } from "lucide-react";
+import { getAiUsage } from "@/lib/sets.functions";
+import { planFor } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — Lumio" }] }),
@@ -102,6 +105,8 @@ function Settings() {
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="mt-1 text-muted-foreground">Manage your profile and security.</p>
       </header>
+
+      <AiUsageCard />
 
       {/* Profile */}
       <section className="surface p-6">
