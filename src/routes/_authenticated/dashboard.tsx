@@ -210,7 +210,7 @@ function Dashboard() {
                     icon={s.kind === "study" ? BookOpenCheck : s.kind === "test" ? ListChecks : GraduationCap}
                     title={s.title}
                     sub={`${s.kind === "study" ? "Study set" : s.kind === "test" ? "Test" : "Exam"} · ${new Date(s.created_at).toLocaleDateString()}`}
-                    href={{ to: "/sets/$id", params: { id: s.id } }}
+                    href={{ kind: "set", id: s.id }}
                   />
                 ))}
                 {(stats?.recent ?? []).slice(0, 3).map((m) => {
@@ -221,7 +221,7 @@ function Dashboard() {
                       icon={Icon}
                       title={m.title}
                       sub={`${TYPE_META[m.type as keyof typeof TYPE_META]?.label} · ${new Date(m.created_at).toLocaleDateString()}`}
-                      href={{ to: "/library", search: { type: m.type as "notes" | "homework" | "exam" } }}
+                      href={{ kind: "material", type: m.type as "notes" | "homework" | "exam" }}
                     />
                   );
                 })}
