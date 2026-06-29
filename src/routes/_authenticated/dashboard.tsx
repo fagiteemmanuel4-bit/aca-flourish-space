@@ -297,10 +297,6 @@ function ActionCard({
   );
 }
 
-type ActivityHref =
-  | { to: "/sets/$id"; params: { id: string } }
-  | { to: "/library"; search: { type: "notes" | "homework" | "exam" } };
-
 function ActivityRow({
   icon: Icon,
   title,
@@ -310,13 +306,13 @@ function ActivityRow({
   icon: typeof BookOpen;
   title: string;
   sub: string;
-  href: ActivityHref;
+  href:
+    | { kind: "set"; id: string }
+    | { kind: "material"; type: "notes" | "homework" | "exam" };
 }) {
-  return (
-    <Link
-      {...(href as never)}
-      className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-secondary/50 transition-colors"
-    >
+  const cls = "flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-secondary/50 transition-colors";
+  const inner = (
+    <>
       <div className="h-8 w-8 rounded-md bg-primary-soft flex items-center justify-center shrink-0">
         <Icon className="h-4 w-4 text-primary" />
       </div>
@@ -325,6 +321,18 @@ function ActivityRow({
         <div className="text-xs text-muted-foreground">{sub}</div>
       </div>
       <ArrowRight className="h-4 w-4 text-muted-foreground" />
+    </>
+  );
+  if (href.kind === "set") {
+    return (
+      <Link to="/sets/$id" params={{ id: href.id }} className={cls}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <Link to="/library" search={{ type: href.type }} className={cls}>
+      {inner}
     </Link>
   );
 }
