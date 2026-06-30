@@ -14,7 +14,7 @@ import {
   TrendingUp,
   CreditCard,
 } from "lucide-react";
-import { getAiUsage } from "@/lib/sets.functions";
+import { getUsage } from "@/lib/exam.functions";
 import { planFor } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -72,7 +72,7 @@ function Dashboard() {
     },
   });
 
-  const { data: usage } = useQuery({ queryKey: ["ai-usage"], queryFn: () => getAiUsage() });
+  const { data: usage } = useQuery({ queryKey: ["ai-usage"], queryFn: () => getUsage() });
   const plan = planFor(usage?.plan);
 
   const avgScore =

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ShieldCheck, ShieldOff, Loader2, Mail, User as UserIcon, Sparkles, Zap, CreditCard, ArrowRight } from "lucide-react";
-import { getAiUsage } from "@/lib/sets.functions";
+import { getUsage } from "@/lib/exam.functions";
 import { planFor } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/settings")({
 function AiUsageCard() {
   const { data: usage, isLoading } = useQuery({
     queryKey: ["ai-usage"],
-    queryFn: () => getAiUsage(),
+    queryFn: () => getUsage(),
   });
   const plan = planFor(usage?.plan);
   const pct =
