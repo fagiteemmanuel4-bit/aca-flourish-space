@@ -113,7 +113,7 @@ function WelcomeModal({ onDone, onSkip }: { onDone: () => void; onSkip: () => vo
           </div>
         </div>
       </div>
-    </div>,
+    </div>
   );
 }
 
