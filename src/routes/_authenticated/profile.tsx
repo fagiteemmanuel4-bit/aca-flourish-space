@@ -29,6 +29,8 @@ import {
 import { getUsage } from "@/lib/exam.functions";
 import { planFor } from "@/lib/plans";
 import { useRouter } from "@tanstack/react-router";
+import { StatCardSkeleton, MiniStatSkeleton } from "@/components/Skeletons";
+import { resetOnboarding } from "@/components/Onboarding";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — Lumio" }] }),
@@ -66,10 +68,10 @@ function ProfilePage() {
     },
   });
 
-  const { data: usage } = useQuery({ queryKey: ["ai-usage"], queryFn: () => getUsage() });
+  const { data: usage, isLoading: usageLoading } = useQuery({ queryKey: ["ai-usage"], queryFn: () => getUsage() });
   const plan = planFor(usage?.plan ?? me?.profile?.plan);
 
-  const { data: counts } = useQuery({
+  const { data: counts, isLoading: countsLoading } = useQuery({
     queryKey: ["profile-counts"],
     queryFn: async () => {
       const [mats, sets, atts, posts] = await Promise.all([
@@ -227,7 +229,7 @@ function ProfilePage() {
       </section>
 
       {/* ==== Score tray (streak, honor, credits) ==== */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 stagger">
         <StatCard
           icon={Flame}
           tone="orange"
@@ -243,25 +245,38 @@ function ProfilePage() {
           sub={`of 10,000  ·  ${honorPct}%`}
           progress={honorPct}
         />
-        <StatCard
-          icon={Zap}
-          tone="primary"
-          label="AI credits"
-          value={usage ? `${usage.remaining}` : "—"}
-          sub={`left of ${usage?.limit ?? "—"} · ${plan.name}`}
-          progress={usage && usage.limit > 0 ? 100 - Math.round((usage.used / usage.limit) * 100) : 0}
-          href="/billing"
-        />
+        {usageLoading ? <StatCardSkeleton /> : (
+          <StatCard
+            icon={Zap}
+            tone="primary"
+            label="AI credits"
+            value={usage ? `${usage.remaining}` : "—"}
+            sub={`left of ${usage?.limit ?? "—"} · ${plan.name}`}
+            progress={usage && usage.limit > 0 ? 100 - Math.round((usage.used / usage.limit) * 100) : 0}
+            href="/billing"
+          />
+        )}
       </section>
 
       {/* ==== Activity grid ==== */}
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-1">Activity</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <MiniStat icon={BookOpenCheck} label="Materials"  value={counts?.materials ?? "—"} />
-          <MiniStat icon={GraduationCap}  label="Sets"       value={counts?.sets ?? "—"} />
-          <MiniStat icon={Trophy}         label="Exam runs"  value={counts?.attempts ?? "—"} />
-          <MiniStat icon={Heart}          label="Posts"      value={counts?.posts ?? "—"} />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 stagger">
+          {countsLoading ? (
+            <>
+              <MiniStatSkeleton />
+              <MiniStatSkeleton />
+              <MiniStatSkeleton />
+              <MiniStatSkeleton />
+            </>
+          ) : (
+            <>
+              <MiniStat icon={BookOpenCheck} label="Materials"  value={counts?.materials ?? 0} />
+              <MiniStat icon={GraduationCap}  label="Sets"       value={counts?.sets ?? 0} />
+              <MiniStat icon={Trophy}         label="Exam runs"  value={counts?.attempts ?? 0} />
+              <MiniStat icon={Heart}          label="Posts"      value={counts?.posts ?? 0} />
+            </>
+          )}
         </div>
       </section>
 
