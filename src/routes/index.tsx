@@ -1,17 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, FileText, GraduationCap, Sparkles, ShieldCheck, Upload } from "lucide-react";
-import { LumioWordmark } from "@/components/Logo";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * Landing page removed on user request.
+ * Signed-in users land on /lumio; everyone else goes to /auth.
+ */
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Lumio — Study, illuminated" },
-      { name: "description", content: "A calm, organized home for your class notes, homework and past exams. Built for personal academic growth." },
-      { property: "og:title", content: "Lumio — Study, illuminated" },
-      { property: "og:description", content: "A calm, organized home for your class notes, homework and past exams." },
-    ],
-  }),
-  component: Landing,
+  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getUser();
+    if (data.user) throw redirect({ to: "/lumio", replace: true });
+    throw redirect({ to: "/auth", replace: true });
+  },
+  component: () => null,
 });
 
 function Landing() {
