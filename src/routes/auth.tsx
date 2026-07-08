@@ -72,7 +72,7 @@ function AuthPage() {
           toast.error(parsed.error.issues[0].message);
           return;
         }
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
           options: {
@@ -81,6 +81,12 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          // Email confirmation is required — there's no active session yet.
+          toast.success("Account created! Check your email to confirm before signing in.");
+          setMode("signin");
+          return;
+        }
         toast.success("Account created. Welcome to Lumio!");
         navigate({ to: "/lumio", replace: true });
       } else {
