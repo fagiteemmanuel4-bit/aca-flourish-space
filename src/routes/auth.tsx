@@ -9,7 +9,6 @@ import {
   updateProfile,
   signInWithPopup,
 } from "firebase/auth";
-import { SpoudeMark } from "@/components/Logo";
 import { toast } from "sonner";
 import { Loader2, Mail, Lock, ShieldCheck, ArrowRight, User as UserIcon, HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -184,12 +183,10 @@ function AuthPage() {
           aria-hidden
         />
 
-        {/* Logo + wordmark, top-left */}
-        <div className="relative z-10 flex items-center gap-2.5 px-10 pt-10">
-          <div className="h-10 w-10 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/15">
-            <SpoudeMark size={24} />
-          </div>
-          <span className="text-xl font-bold tracking-tight text-white">Spoude</span>
+        {/* Logos, top-left — logo_1 leads, logo_2 sits right beside it */}
+        <div className="relative z-10 flex items-center gap-2 px-10 pt-10">
+          <img src="/logo_1.png" alt="" className="h-14 w-auto object-contain" />
+          <img src="/logo_2.png" alt="" className="h-14 w-auto object-contain" />
         </div>
 
         {/* Rotating expressive line, bottom-left */}
@@ -215,15 +212,10 @@ function AuthPage() {
 
       {/* RIGHT — the auth form */}
       <div className="relative flex flex-1 flex-col min-h-screen lg:min-h-0">
-        {/* Mobile-only brand row (left panel is hidden below lg) */}
+        {/* Mobile-only brand row (left panel is hidden below lg) — logo_1 leads, logo_2 right beside it */}
         <div className="flex lg:hidden items-center gap-2 px-6 pt-6">
-          <div
-            className="h-9 w-9 rounded-2xl border border-border flex items-center justify-center"
-            style={{ background: "var(--popover)" }}
-          >
-            <SpoudeMark size={22} />
-          </div>
-          <span className="text-lg font-bold tracking-tight">Spoude</span>
+          <img src="/logo_1.png" alt="" className="h-11 w-auto object-contain" />
+          <img src="/logo_2.png" alt="" className="h-11 w-auto object-contain" />
         </div>
 
         <main className="flex-1 flex items-center justify-center px-4 py-10 lg:py-0">
