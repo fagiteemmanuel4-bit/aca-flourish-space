@@ -193,12 +193,18 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen bg-background lg:flex">
-      {/* LEFT — brand + photo + rotating expressive copy (desktop only) */}
+      {/* LEFT — brand + video + rotating expressive copy (desktop only) */}
       <div className="relative hidden lg:flex lg:w-1/2 xl:w-3/5 flex-col justify-between overflow-hidden">
-        {/* Background photo, faded under a dark gradient so text stays readable */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/auth-bg.mp4)" }}
+        {/* Background video — was a CSS background-image pointed at an .mp4, which
+            never renders. A real <video> element is required to actually play it. */}
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/auth-bg.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
           aria-hidden
         />
         <div
