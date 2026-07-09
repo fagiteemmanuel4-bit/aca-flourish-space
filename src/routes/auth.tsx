@@ -198,7 +198,7 @@ function AuthPage() {
         {/* Background photo, faded under a dark gradient so text stays readable */}
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/auth-bg.jpg)" }}
+          style={{ backgroundImage: "url(/auth-bg.mp4)" }}
           aria-hidden
         />
         <div
