@@ -19,13 +19,13 @@ import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiTeachRouteImport } from './routes/api/teach'
-import { Route as AuthenticatedUniversityDashboardRouteImport } from './routes/_authenticated/university-dashboard'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
 import { Route as AuthenticatedSpoudeLibraryRouteImport } from './routes/_authenticated/spoude-library'
 import { Route as AuthenticatedSpoudeRouteImport } from './routes/_authenticated/spoude'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticated/library'
+import { Route as AuthenticatedHelpRouteImport } from './routes/_authenticated/help'
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -80,12 +80,6 @@ const ApiTeachRoute = ApiTeachRouteImport.update({
   path: '/api/teach',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedUniversityDashboardRoute =
-  AuthenticatedUniversityDashboardRouteImport.update({
-    id: '/university-dashboard',
-    path: '/university-dashboard',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedStudyRoute = AuthenticatedStudyRouteImport.update({
   id: '/study',
   path: '/study',
@@ -115,6 +109,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AuthenticatedLibraryRoute = AuthenticatedLibraryRouteImport.update({
   id: '/library',
   path: '/library',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHelpRoute = AuthenticatedHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedExamsRoute = AuthenticatedExamsRouteImport.update({
@@ -150,13 +149,13 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/exams': typeof AuthenticatedExamsRoute
+  '/help': typeof AuthenticatedHelpRoute
   '/library': typeof AuthenticatedLibraryRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/spoude': typeof AuthenticatedSpoudeRoute
   '/spoude-library': typeof AuthenticatedSpoudeLibraryRoute
   '/study': typeof AuthenticatedStudyRoute
-  '/university-dashboard': typeof AuthenticatedUniversityDashboardRoute
   '/api/teach': typeof ApiTeachRoute
   '/sets/$id': typeof AuthenticatedSetsIdRoute
 }
@@ -172,13 +171,13 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/exams': typeof AuthenticatedExamsRoute
+  '/help': typeof AuthenticatedHelpRoute
   '/library': typeof AuthenticatedLibraryRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/spoude': typeof AuthenticatedSpoudeRoute
   '/spoude-library': typeof AuthenticatedSpoudeLibraryRoute
   '/study': typeof AuthenticatedStudyRoute
-  '/university-dashboard': typeof AuthenticatedUniversityDashboardRoute
   '/api/teach': typeof ApiTeachRoute
   '/sets/$id': typeof AuthenticatedSetsIdRoute
 }
@@ -196,13 +195,13 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/exams': typeof AuthenticatedExamsRoute
+  '/_authenticated/help': typeof AuthenticatedHelpRoute
   '/_authenticated/library': typeof AuthenticatedLibraryRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/spoude': typeof AuthenticatedSpoudeRoute
   '/_authenticated/spoude-library': typeof AuthenticatedSpoudeLibraryRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
-  '/_authenticated/university-dashboard': typeof AuthenticatedUniversityDashboardRoute
   '/api/teach': typeof ApiTeachRoute
   '/_authenticated/sets/$id': typeof AuthenticatedSetsIdRoute
 }
@@ -220,13 +219,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/billing'
     | '/exams'
+    | '/help'
     | '/library'
     | '/profile'
     | '/settings'
     | '/spoude'
     | '/spoude-library'
     | '/study'
-    | '/university-dashboard'
     | '/api/teach'
     | '/sets/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -242,13 +241,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/billing'
     | '/exams'
+    | '/help'
     | '/library'
     | '/profile'
     | '/settings'
     | '/spoude'
     | '/spoude-library'
     | '/study'
-    | '/university-dashboard'
     | '/api/teach'
     | '/sets/$id'
   id:
@@ -265,13 +264,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/billing'
     | '/_authenticated/exams'
+    | '/_authenticated/help'
     | '/_authenticated/library'
     | '/_authenticated/profile'
     | '/_authenticated/settings'
     | '/_authenticated/spoude'
     | '/_authenticated/spoude-library'
     | '/_authenticated/study'
-    | '/_authenticated/university-dashboard'
     | '/api/teach'
     | '/_authenticated/sets/$id'
   fileRoutesById: FileRoutesById
@@ -361,13 +360,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTeachRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/university-dashboard': {
-      id: '/_authenticated/university-dashboard'
-      path: '/university-dashboard'
-      fullPath: '/university-dashboard'
-      preLoaderRoute: typeof AuthenticatedUniversityDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/study': {
       id: '/_authenticated/study'
       path: '/study'
@@ -410,6 +402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibraryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/help': {
+      id: '/_authenticated/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof AuthenticatedHelpRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/exams': {
       id: '/_authenticated/exams'
       path: '/exams'
@@ -445,13 +444,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRoute
+  AuthenticatedHelpRoute: typeof AuthenticatedHelpRoute
   AuthenticatedLibraryRoute: typeof AuthenticatedLibraryRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSpoudeRoute: typeof AuthenticatedSpoudeRoute
   AuthenticatedSpoudeLibraryRoute: typeof AuthenticatedSpoudeLibraryRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
-  AuthenticatedUniversityDashboardRoute: typeof AuthenticatedUniversityDashboardRoute
   AuthenticatedSetsIdRoute: typeof AuthenticatedSetsIdRoute
 }
 
@@ -459,13 +458,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedExamsRoute: AuthenticatedExamsRoute,
+  AuthenticatedHelpRoute: AuthenticatedHelpRoute,
   AuthenticatedLibraryRoute: AuthenticatedLibraryRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSpoudeRoute: AuthenticatedSpoudeRoute,
   AuthenticatedSpoudeLibraryRoute: AuthenticatedSpoudeLibraryRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,
-  AuthenticatedUniversityDashboardRoute: AuthenticatedUniversityDashboardRoute,
   AuthenticatedSetsIdRoute: AuthenticatedSetsIdRoute,
 }
 

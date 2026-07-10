@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { PLANS, planFor, type PlanId } from "@/lib/plans";
-import { getCurrentFirebaseUser, saveProfile } from "@/lib/firebase-data";
 import { getUsage } from "@/lib/exam.functions";
 import { Check, Loader2, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/billing")({
-  head: () => ({ meta: [{ title: "Billing — Spoude" }] }),
+  head: () => ({ meta: [{ title: "Billing — Lumio" }] }),
   component: Billing,
 });
 
@@ -26,18 +26,14 @@ function Billing() {
 
   const upgrade = async (id: PlanId) => {
     setSwitching(id);
-    const user = await getCurrentFirebaseUser();
-    if (!user) {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) {
       setSwitching(null);
       return toast.error("Sign in first");
     }
-    try {
-      await saveProfile(user.uid, { plan: id, updated_at: new Date().toISOString() });
-    } catch (error) {
-      setSwitching(null);
-      return toast.error(error instanceof Error ? error.message : "Could not update plan");
-    }
+    const { error } = await supabase.from("profiles").update({ plan: id }).eq("id", u.user.id);
     setSwitching(null);
+    if (error) return toast.error(error.message);
     toast.success(`Switched to ${PLANS[id].name}`);
     qc.invalidateQueries({ queryKey: ["ai-usage"] });
   };

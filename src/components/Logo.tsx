@@ -45,3 +45,6 @@ export function SpoudeWordmark({ to = "/" }: { to?: string }) {
     </Link>
   );
 }
+
+// Retain legacy exports to prevent compilation breaking in files before we update them
+export { SpoudeMark as LumioMark, SpoudeWordmark as LumioWordmark };

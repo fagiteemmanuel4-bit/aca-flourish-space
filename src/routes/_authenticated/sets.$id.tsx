@@ -1,8 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { db, auth } from "@/lib/firebase";
-import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft,
   ArrowRight,
@@ -23,7 +22,7 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/sets/$id")({
-  head: () => ({ meta: [{ title: "Spoude" }] }),
+  head: () => ({ meta: [{ title: "Lumio" }] }),
   component: SetPlayPage,
 });
 
@@ -43,9 +42,13 @@ function SetPlayPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["set", id],
     queryFn: async () => {
-      const snap = await getDoc(doc(db, "study_sets", id));
-      if (!snap.exists()) throw new Error("Set not found");
-      return snap.data() as unknown as SetRow;
+      const { data, error } = await supabase
+        .from("study_sets")
+        .select("id,kind,title,subject,questions,time_limit_minutes,ai_generated")
+        .eq("id", id)
+        .single();
+      if (error) throw error;
+      return data as unknown as SetRow;
     },
   });
 
@@ -59,7 +62,7 @@ function SetPlayPage() {
     return (
       <div className="surface p-10 text-center text-sm text-muted-foreground">
         Couldn't load this set.{" "}
-        <Link to="/spoude" className="text-primary hover:underline">
+        <Link to="/lumio" className="text-primary hover:underline">
           Go back
         </Link>
       </div>
@@ -323,16 +326,15 @@ function QuizPlayer({ set, onExit }: { set: SetRow; onExit?: () => void }) {
   async function finalize() {
     if (submitted) return;
     setSubmitted(true);
-    const user = auth.currentUser;
-    if (user) {
-      await setDoc(doc(collection(db, "attempts")), {
-        user_id: user.uid,
+    const { data: u } = await supabase.auth.getUser();
+    if (u.user) {
+      await supabase.from("attempts").insert({
+        user_id: u.user.id,
         set_id: set.id,
         score,
         total,
         duration_seconds: Math.round((Date.now() - startedAt) / 1000),
         answers,
-        completed_at: new Date().toISOString(),
       });
       qc.invalidateQueries({ queryKey: ["attempts"] });
     }

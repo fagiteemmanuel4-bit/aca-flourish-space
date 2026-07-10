@@ -4,7 +4,7 @@ export type VoicePrefs = {
   pitch: number;
 };
 
-const KEY = "spoude.voice.prefs";
+const KEY = "lumio.voice.prefs";
 
 export const DEFAULT_VOICE_PREFS: VoicePrefs = {
   voiceURI: null,
