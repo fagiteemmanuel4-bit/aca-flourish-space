@@ -210,16 +210,31 @@ function AuthPage() {
     <div className="min-h-screen bg-background lg:flex">
       {/* LEFT — brand + photo + rotating expressive copy (desktop only) */}
       <div className="relative hidden lg:flex lg:w-1/2 xl:w-3/5 flex-col justify-between overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/auth-bg.jpg)" }}
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/auth.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
           aria-hidden
         />
+        {/* Darker overlay than a static photo needs — video brightness/motion draws the eye,
+            so we push it down further to keep the logo and text readable. */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(160deg, rgba(15,20,40,0.88) 0%, rgba(20,25,55,0.72) 45%, rgba(20,25,55,0.55) 100%)",
+              "linear-gradient(160deg, rgba(8,11,26,0.92) 0%, rgba(12,15,38,0.82) 45%, rgba(12,15,38,0.72) 100%)",
+          }}
+          aria-hidden
+        />
+        {/* Extra vignette so the corners (where the logo/text sit) are never washed out by a bright frame */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.45) 100%)",
           }}
           aria-hidden
         />
