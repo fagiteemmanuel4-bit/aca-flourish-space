@@ -15,8 +15,10 @@ import {
   Bell,
   Sun,
   Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
-import { LumioMark, LumioWordmark } from "@/components/Logo";
+import { SpoudeMark, SpoudeWordmark } from "@/components/Logo";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/lib/theme";
@@ -45,19 +47,47 @@ const GROUP_LABELS: Record<string, string> = {
   account: "Account",
 };
 
+const SIDEBAR_COLLAPSE_KEY = "spoude:sidebar-collapsed";
+
+function useSidebarCollapsed() {
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SIDEBAR_COLLAPSE_KEY, collapsed ? "1" : "0");
+    } catch {
+      // localStorage unavailable (private mode, etc.) — collapse state just won't persist.
+    }
+  }, [collapsed]);
+
+  return { collapsed, setCollapsed };
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [tray, setTray] = useState(false);
+  const { collapsed, setCollapsed } = useSidebarCollapsed();
   useEffect(() => { setTray(false); }, [pathname]);
 
   return (
     <div className="min-h-screen bg-background lumio-paper flex flex-col">
-      {/* ==== Desktop top bar (MySchool-style) ==== */}
+      {/* ==== Desktop top bar ==== */}
       <DesktopTopBar />
 
       <div className="flex-1 flex min-h-0">
         {/* Desktop sidebar */}
-        <DesktopSidebar pathname={pathname} />
+        <DesktopSidebar
+          pathname={pathname}
+          collapsed={collapsed}
+          onToggle={() => setCollapsed((c) => !c)}
+        />
 
         {/* Content */}
         <main className="flex-1 min-w-0 pt-14 lg:pt-0 pb-24 lg:pb-8">
@@ -94,13 +124,13 @@ function DesktopTopBar() {
   return (
     <header className="pc-topbar hidden lg:flex sticky top-0 z-30 items-center justify-between px-6 h-12">
       <div className="flex items-center gap-4">
-        <LumioWordmark to="/lumio" />
+        <SpoudeWordmark to="/lumio" size={20} />
         <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Study workspace</span>
       </div>
       <div className="flex items-center gap-2">
         <div className="hidden xl:flex items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-1.5 w-72 backdrop-blur">
           <Search className="h-3.5 w-3.5 text-muted-foreground" />
-          <input placeholder="Search Lumio…" className="w-full bg-transparent outline-none text-xs placeholder:text-muted-foreground/70" />
+          <input placeholder="Search Spoude…" className="w-full bg-transparent outline-none text-xs placeholder:text-muted-foreground/70" />
         </div>
         <ThemeToggle />
         <button className="p-1.5 rounded-full hover:bg-sidebar-accent text-muted-foreground transition-colors" aria-label="Notifications">
@@ -133,7 +163,7 @@ function DesktopStatusBar() {
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
           Ready
         </span>
-        <span>Lumio v1.0</span>
+        <span>Spoude v1.0</span>
       </div>
       <div className="flex items-center gap-4">
         <span className="inline-flex items-center gap-1"><Wifi className="h-3 w-3" /> Online</span>
@@ -143,20 +173,46 @@ function DesktopStatusBar() {
   );
 }
 
-function DesktopSidebar({ pathname }: { pathname: string }) {
+function DesktopSidebar({
+  pathname,
+  collapsed,
+  onToggle,
+}: {
+  pathname: string;
+  collapsed: boolean;
+  onToggle: () => void;
+}) {
   const items: NavItem[] = [
     { to: "/lumio", label: "Home", icon: Home, group: "library" },
     ...TRAY_NAV,
     { to: "/profile", label: "Profile", icon: User, group: "account" },
   ];
   return (
-    <aside className="hidden lg:flex w-60 shrink-0 flex-col border-r border-border/60 bg-sidebar backdrop-blur-xl px-4 py-6 sticky top-12 h-[calc(100vh-3rem-1.5rem)]">
+    <aside
+      className={`hidden lg:flex shrink-0 flex-col border-r border-border/60 bg-sidebar backdrop-blur-xl py-6 sticky top-12 h-[calc(100vh-3rem-1.5rem)] transition-[width] duration-200 ease-out ${
+        collapsed ? "w-[68px] px-2" : "w-60 px-4"
+      }`}
+    >
+      {/* Collapse / expand toggle */}
+      <div className={`mb-4 flex ${collapsed ? "justify-center" : "justify-end"}`}>
+        <button
+          onClick={onToggle}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+        >
+          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+        </button>
+      </div>
+
       <nav className="flex flex-col gap-5">
         {(["library", "learn", "account"] as const).map((g) => (
           <div key={g}>
-            <div className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-              {GROUP_LABELS[g]}
-            </div>
+            {!collapsed && (
+              <div className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                {GROUP_LABELS[g]}
+              </div>
+            )}
             <div className="flex flex-col gap-0.5">
               {items.filter((n) => n.group === g).map(({ to, label, icon: Icon }) => {
                 const active = pathname === to || pathname.startsWith(to + "/");
@@ -164,14 +220,17 @@ function DesktopSidebar({ pathname }: { pathname: string }) {
                   <Link
                     key={to}
                     to={to}
-                    className={`group flex items-center gap-3 px-3 py-2 rounded-full text-[13px] font-medium transition-all ripple ${
+                    title={collapsed ? label : undefined}
+                    className={`group flex items-center rounded-full text-[13px] font-medium transition-all ripple ${
+                      collapsed ? "justify-center px-0 py-2.5" : "gap-3 px-3 py-2"
+                    } ${
                       active
                         ? "bg-primary/12 text-primary shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--color-primary)_35%,transparent)]"
                         : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
                     }`}
                   >
-                    <Icon className={`h-4 w-4 ${active ? "text-primary" : ""}`} />
-                    {label}
+                    <Icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : ""}`} />
+                    {!collapsed && label}
                   </Link>
                 );
               })}
@@ -188,8 +247,8 @@ function MobileHeader() {
   return (
     <div className="lg:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 h-14 bg-background/75 backdrop-blur-xl border-b border-border/70">
       <div className="flex items-center gap-2">
-        <LumioMark size={24} />
-        <span className="font-bold text-lg tracking-tight" style={{ fontFamily: "var(--font-display)" }}>Lumio</span>
+        <SpoudeMark size={26} />
+        <SpoudeWordmark size={19} />
       </div>
       <div className="flex items-center gap-1">
         <button

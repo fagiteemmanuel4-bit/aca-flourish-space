@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { type ReactNode } from "react";
-import { LumioWordmark } from "@/components/Logo";
+import { SpoudeWordmark } from "@/components/Logo";
 
 export function LegalLayout({ title, updated, children }: { title: string; updated: string; children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
-          <LumioWordmark />
+          <SpoudeWordmark to="/lumio" />
           <nav className="flex gap-4 text-sm text-muted-foreground">
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>

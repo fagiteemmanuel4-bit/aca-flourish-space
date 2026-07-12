@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Sparkles, Home, Plus, Moon, User, ArrowRight, X } from "lucide-react";
-import { LumioMark } from "@/components/Logo";
+import { SpoudeMark } from "@/components/Logo";
 
 const KEY = "lumio-onboarding-v1";
 
@@ -70,12 +70,12 @@ function WelcomeModal({ onDone, onSkip }: { onDone: () => void; onSkip: () => vo
           <div className="relative">
             <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-lg animate-shimmer" />
             <div className="relative h-11 w-11 rounded-2xl bg-primary/12 flex items-center justify-center">
-              <LumioMark size={22} />
+              <SpoudeMark size={30} />
             </div>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Welcome to</p>
-            <h2 className="text-lg font-semibold tracking-tight">Lumio</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Spoude</h2>
           </div>
         </div>
 
