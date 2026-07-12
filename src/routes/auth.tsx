@@ -128,7 +128,6 @@ function AuthPage() {
         });
         if (error) throw error;
         if (!data.session) {
-          // Email confirmation is required — there's no active session yet.
           toast.success("Account created! Check your email to confirm before signing in.");
           setMode("signin");
           return;
@@ -211,7 +210,6 @@ function AuthPage() {
     <div className="min-h-screen bg-background lg:flex">
       {/* LEFT — brand + photo + rotating expressive copy (desktop only) */}
       <div className="relative hidden lg:flex lg:w-1/2 xl:w-3/5 flex-col justify-between overflow-hidden">
-        {/* Background photo, faded under a dark gradient so text stays readable */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url(/auth-bg.jpg)" }}
@@ -226,7 +224,7 @@ function AuthPage() {
           aria-hidden
         />
 
-        {/* Logo, top-left — text wordmark in brand colors, on a soft glass pill */}
+        {/* Logo, top-left — text wordmark on a soft glass pill so it reads over the photo */}
         <div className="relative z-10 px-10 pt-10">
           <div className="inline-flex items-center rounded-2xl bg-white/95 backdrop-blur-sm px-4 py-2.5 border border-white/20 shadow-lg">
             <SpoudeWordmark size={24} />
@@ -256,7 +254,6 @@ function AuthPage() {
 
       {/* RIGHT — the auth form */}
       <div className="relative flex flex-1 flex-col min-h-screen lg:min-h-0">
-        {/* Mobile-only brand row (left panel is hidden below lg) */}
         <div className="flex lg:hidden items-center px-6 pt-6">
           <SpoudeWordmark size={22} />
         </div>
@@ -274,7 +271,6 @@ function AuthPage() {
               </p>
             </div>
 
-            {/* Card */}
             <div
               className="rounded-3xl border border-border shadow-elev-3 p-6 sm:p-7 animate-fade-up"
               style={{ background: "var(--popover)", animationDelay: "60ms" }}

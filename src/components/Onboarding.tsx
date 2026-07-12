@@ -70,12 +70,12 @@ function WelcomeModal({ onDone, onSkip }: { onDone: () => void; onSkip: () => vo
           <div className="relative">
             <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-lg animate-shimmer" />
             <div className="relative h-11 w-11 rounded-2xl bg-primary/12 flex items-center justify-center">
-              <SpoudeMark size={30} />
+              <SpoudeMark size={22} />
             </div>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Welcome to</p>
-            <h2 className="text-lg font-semibold tracking-tight">Spoude</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Lumio</h2>
           </div>
         </div>
 
