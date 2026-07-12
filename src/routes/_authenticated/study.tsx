@@ -98,6 +98,8 @@ function StyleScroller({ value, onChange }: { value: string; onChange: (id: stri
     </div>
   );
 }
+
+function StudyPage() {
   const [stage, setStage] = useState<Stage>("pick");
   const [material, setMaterial] = useState<LibrarySearchMaterial | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
