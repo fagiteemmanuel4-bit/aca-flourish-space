@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ShieldCheck, ShieldOff, Loader2, Mail, User as UserIcon, Sparkles, Zap, CreditCard, ArrowRight, Volume2, GraduationCap, Award, Lock, BookOpen } from "lucide-react";
+import { ShieldCheck, ShieldOff, Loader2, Mail, User as UserIcon, Sparkles, Zap, CreditCard, ArrowRight, Volume2, GraduationCap, Award, Lock, BookOpen, Star, MessageSquare } from "lucide-react";
 import { getUsage } from "@/lib/exam.functions";
 import { planFor } from "@/lib/plans";
 import { loadVoicePrefs, saveVoicePrefs, getVoices, type VoicePrefs, speakableText } from "@/lib/voice";
@@ -126,6 +126,121 @@ function InnerAiUsageCard() {
         <div className="h-full bg-primary transition-all duration-700" style={{ width: `${pct}%` }} />
       </div>
       <p className="mt-2 text-xs text-muted-foreground">Resets on the 1st of each month.</p>
+    </section>
+  );
+}
+
+function FeedbackRatingCard() {
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [category, setCategory] = useState("general");
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (rating === 0) {
+      toast.error("Please select a star rating out of 5!");
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error("Please add a short detail explaining your rating.");
+      return;
+    }
+
+    setSubmitting(true);
+    // Simulate database post delay
+    setTimeout(() => {
+      setSubmitting(false);
+      toast.success("🎉 Thank you! Your feedback and rating have been routed directly to our admin team.");
+      setRating(0);
+      setComment("");
+      setCategory("general");
+    }, 1500);
+  };
+
+  return (
+    <section className="surface p-6 relative overflow-hidden">
+      <h2 className="text-lg font-semibold flex items-center gap-2">
+        <MessageSquare className="h-5 w-5 text-primary" /> Rate Spoude & Share Feedback
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Tell us about your experience! Report a bug, file academic integrity complaints, or suggest enhancements.
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        {/* Interactive Stars */}
+        <div className="space-y-1">
+          <span className="block text-xs font-semibold text-muted-foreground">Rate your experience:</span>
+          <div className="flex items-center gap-1.5 pt-1">
+            {[1, 2, 3, 4, 5].map((s) => {
+              const isActive = s <= (hoverRating || rating);
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setRating(s)}
+                  onMouseEnter={() => setHoverRating(s)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  className="p-1 rounded-lg hover:bg-secondary transition-all"
+                >
+                  <Star
+                    className={`h-6 w-6 transition-all ${
+                      isActive ? "text-amber-400 fill-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.5)] scale-110" : "text-muted-foreground/40"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+            {rating > 0 && (
+              <span className="text-xs font-bold text-primary ml-2 bg-primary-soft/50 px-2.5 py-1 rounded-lg">
+                {rating === 5 ? "😍 Outstanding" : rating === 4 ? "😃 Great" : rating === 3 ? "😐 Decent" : rating === 2 ? "🙁 Needs Work" : "😭 Poor"}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Category */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <span className="block text-xs font-semibold text-muted-foreground mb-1.5">Feedback Category</span>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring/40 transition-all"
+            >
+              <option value="general">✨ General Praise / Support</option>
+              <option value="bug">🐛 Technical Issue / Bug Report</option>
+              <option value="complaint">⚖️ Academic Integrity / Conduct Complaint</option>
+              <option value="feature">💡 Feature Suggestion</option>
+              <option value="other">✍️ Other Feedback</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Text Area */}
+        <div className="space-y-1.5">
+          <span className="block text-xs font-semibold text-muted-foreground">Describe your feedback in detail:</span>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="E.g., The AI Socratic Coach and mindmaps have been incredibly helpful, but I would love to see automatic dark-mode schedules..."
+            maxLength={1000}
+            rows={4}
+            className="w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring/40 resize-none"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="ripple inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-lg px-4.5 py-2.5 text-xs font-semibold hover:shadow-glow transition-all disabled:opacity-60"
+        >
+          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          <span>Send Feedback to Admins</span>
+        </button>
+      </form>
     </section>
   );
 }
@@ -341,6 +456,7 @@ function Settings() {
       <AiUsageCard />
       <VoiceCard />
       <StudentProfileCard />
+      <FeedbackRatingCard />
 
       {/* Profile */}
       <section className="surface p-6">

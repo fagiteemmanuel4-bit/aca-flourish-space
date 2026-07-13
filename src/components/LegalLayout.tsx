@@ -8,10 +8,12 @@ export function LegalLayout({ title, updated, children }: { title: string; updat
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
           <LumioWordmark />
-          <nav className="flex gap-4 text-sm text-muted-foreground">
+          <nav className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end">
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             <Link to="/disclaimer" className="hover:text-foreground transition-colors">Disclaimer</Link>
+            <Link to="/refund" className="hover:text-foreground transition-colors">Refunds</Link>
+            <Link to="/acceptable-use" className="hover:text-foreground transition-colors">Acceptable Use</Link>
           </nav>
         </div>
       </header>

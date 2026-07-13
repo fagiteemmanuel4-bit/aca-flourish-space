@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
-import { Sparkles, Home, Plus, Moon, User, ArrowRight, X } from "lucide-react";
+import { Sparkles, Home, Plus, Moon, User, ArrowRight, X, ChevronRight, ChevronLeft, Check, BookOpen, GraduationCap, Trophy, HelpCircle } from "lucide-react";
 import { LumioMark } from "@/components/Logo";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const KEY = "lumio-onboarding-v1";
+const PERSONALIZATION_KEY = "spoude-personalization-v1";
 
 export function shouldRunOnboarding(): boolean {
   if (typeof window === "undefined") return false;
@@ -12,8 +15,21 @@ export function shouldRunOnboarding(): boolean {
 }
 
 export function resetOnboarding() {
-  try { localStorage.removeItem(KEY); } catch {}
+  try {
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(PERSONALIZATION_KEY);
+  } catch {}
   window.dispatchEvent(new Event("lumio:onboarding:replay"));
+}
+
+export function loadPersonalization() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(PERSONALIZATION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function Onboarding() {
@@ -27,10 +43,21 @@ export function Onboarding() {
     return () => window.removeEventListener("lumio:onboarding:replay", replay);
   }, []);
 
-  const finish = () => {
-    try { localStorage.setItem(KEY, "done"); } catch {}
+  const finish = (personalizationData: any) => {
+    try {
+      localStorage.setItem(KEY, "done");
+      localStorage.setItem(PERSONALIZATION_KEY, JSON.stringify(personalizationData));
+
+      // Attempt to save to Supabase User Metadata as well for premium sync
+      supabase.auth.updateUser({
+        data: {
+          personalization: personalizationData
+        }
+      });
+    } catch {}
     setOpen(false);
     setShowTips(true);
+    toast.success("🎉 Personalization applied! Your AI tutor has been adjusted to your learning styles.");
     // auto-dismiss tips after 12s so we don't nag
     window.setTimeout(() => setShowTips(false), 12000);
   };
@@ -39,14 +66,47 @@ export function Onboarding() {
 
   return createPortal(
     <>
-      {open && <WelcomeModal onDone={finish} onSkip={finish} />}
+      {open && <WelcomeModal onDone={finish} onSkip={() => finish({})} />}
       {showTips && <TipPulses onDismiss={() => setShowTips(false)} />}
     </>,
     document.body,
   );
 }
 
-function WelcomeModal({ onDone, onSkip }: { onDone: () => void; onSkip: () => void }) {
+function WelcomeModal({ onDone, onSkip }: { onDone: (data: any) => void; onSkip: () => void }) {
+  const [step, setStep] = useState(1);
+
+  // Personalization answers
+  const [grade, setGrade] = useState("Undergraduate");
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [goal, setStudyGoal] = useState("Conceptual Mastery");
+  const [style, setLearningStyle] = useState("eli5");
+
+  const toggleSubject = (sub: string) => {
+    setSubjects((p) =>
+      p.includes(sub) ? p.filter((x) => x !== sub) : [...p, sub]
+    );
+  };
+
+  const handleNext = () => {
+    if (step < 5) {
+      setStep(step + 1);
+    } else {
+      onDone({
+        grade,
+        subjects,
+        goal,
+        style
+      });
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 animate-fade-up">
       <button
@@ -55,65 +115,227 @@ function WelcomeModal({ onDone, onSkip }: { onDone: () => void; onSkip: () => vo
         className="absolute inset-0 bg-foreground/70 backdrop-blur-md"
       />
       <div
-        className="relative w-full max-w-md p-6 sm:p-7 rounded-3xl border border-border shadow-elev-3"
+        className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl border border-border shadow-elev-3 flex flex-col justify-between min-h-[480px]"
         style={{ background: "var(--popover)", color: "var(--popover-foreground)" }}
       >
+        {/* Absolute Close */}
         <button
           onClick={onSkip}
           aria-label="Close"
-          className="absolute top-3 right-3 p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
+          className="absolute top-4 right-4 p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors z-20"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4.5 w-4.5" />
         </button>
 
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-lg animate-shimmer" />
-            <div className="relative h-11 w-11 rounded-2xl bg-primary/12 flex items-center justify-center">
-              <LumioMark size={22} />
-            </div>
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Welcome to</p>
-            <h2 className="text-lg font-semibold tracking-tight">Lumio</h2>
-          </div>
+        {/* Step Indicator dots */}
+        <div className="flex gap-1.5 mb-6 z-10">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <div
+              key={s}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                s === step ? "w-8 bg-primary" : "w-1.5 bg-muted-foreground/30"
+              }`}
+            />
+          ))}
         </div>
 
-        <p className="text-[13px] text-muted-foreground leading-relaxed">
-          Your study, illuminated. Here's what to know in 20 seconds — three things you'll use every day.
-        </p>
+        {/* Content switch */}
+        <div className="flex-1 flex flex-col justify-center mb-6">
+          {step === 1 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-lg animate-shimmer" />
+                  <div className="relative h-12 w-12 rounded-2xl bg-primary/12 flex items-center justify-center">
+                    <LumioMark size={24} />
+                  </div>
+                </div>
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary">Academic Workspace</span>
+                  <h2 className="text-xl font-black tracking-tight text-foreground">Welcome to Spoude</h2>
+                </div>
+              </div>
 
-        <ul className="mt-5 space-y-3">
-          <Row icon={Home} tone="primary" title="Home hub" desc="Progress, jump-in tiles, and recent activity — all in one place." />
-          <Row icon={Plus} tone="violet" title="Bottom nav +" desc="Tap the glowing plus to reach Library, Study, Exams and Billing." />
-          <Row icon={Moon} tone="gold" title="Light or dark" desc="Toggle any time from the top bar. Your choice is remembered." />
-          <Row icon={User} tone="emerald" title="Your profile" desc="Honor score, streak, credits and account controls live under Profile." />
-        </ul>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Your study, illuminated. Spoude is a calm, quiet, and hyper-personalized space that turns your notes, homework sheets, and textbooks into smart guides, custom practice tests, and interactive audio walks.
+              </p>
 
-        <div className="mt-6 flex items-center justify-between gap-3">
-          <button
-            onClick={onSkip}
-            className="text-[12px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Skip
-          </button>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/library"
-              onClick={onDone}
-              className="text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Upload later
-            </Link>
+              <div className="bg-secondary/40 rounded-2xl p-4 flex items-start gap-3 border border-border/50">
+                <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5 animate-pulse" />
+                <div className="space-y-0.5">
+                  <h4 className="text-xs font-bold text-foreground">Early Contributor Privileges</h4>
+                  <p className="text-xs text-muted-foreground">All premium season passes and subscription costs are completely waived during our active beta program.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4 animate-fade-in">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-widest text-primary">Onboarding Checklist</span>
+                <h3 className="text-lg font-bold tracking-tight text-foreground mt-0.5">What is your current academic grade level?</h3>
+                <p className="text-xs text-muted-foreground">We calibrate practice exam timing and AI explanations to suit your cohort.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                {[
+                  { id: "Highschool", label: "🎒 High School Student" },
+                  { id: "Undergraduate", label: "🏛️ Undergraduate (College)" },
+                  { id: "Postgraduate", label: "🔬 Postgraduate / Researcher" },
+                  { id: "Professional", label: "💼 Professional Learner" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setGrade(item.id)}
+                    className={`p-3.5 rounded-2xl text-left border text-xs font-bold transition-all ${
+                      grade === item.id
+                        ? "border-primary bg-primary-soft/30 text-primary shadow-elev-1"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4 animate-fade-in">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-widest text-primary">Onboarding Checklist</span>
+                <h3 className="text-lg font-bold tracking-tight text-foreground mt-0.5">Select subjects you study or teach</h3>
+                <p className="text-xs text-muted-foreground">Multi-select to customize recommendations in the Spoude Public Library catalog.</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                {[
+                  "💻 Computer Science & DSA",
+                  "⚖️ Jurisprudence & Law",
+                  "🪐 Mathematics & Physics",
+                  "🩺 Medicine & Anatomy",
+                  "📈 Economics & Finance",
+                  "🏛️ World History & Arts",
+                  "🧬 Biological Sciences",
+                  "✏️ Engineering & Design"
+                ].map((sub) => {
+                  const isSelected = subjects.includes(sub);
+                  return (
+                    <button
+                      key={sub}
+                      type="button"
+                      onClick={() => toggleSubject(sub)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                        isSelected
+                          ? "bg-primary border-primary text-primary-foreground shadow-glow"
+                          : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                      }`}
+                    >
+                      {sub} {isSelected && "✓"}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-4 animate-fade-in">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-widest text-primary">Onboarding Checklist</span>
+                <h3 className="text-lg font-bold tracking-tight text-foreground mt-0.5">What is your primary study goal?</h3>
+                <p className="text-xs text-muted-foreground">Adjust roadmap checklists and timeline paths to support your schedule.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                {[
+                  { id: "Exam Prep", label: "🏆 Ace timed mock exams" },
+                  { id: "Conceptual Mastery", label: "🧩 Deep conceptual understanding" },
+                  { id: "Quick Cramming", label: "⚡ Fast reference cheat sheets" },
+                  { id: "Audio Walkthroughs", label: "🎧 Hands-free audio narrations" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setStudyGoal(item.id)}
+                    className={`p-3.5 rounded-2xl text-left border text-xs font-bold transition-all ${
+                      goal === item.id
+                        ? "border-primary bg-primary-soft/30 text-primary shadow-elev-1"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="space-y-4 animate-fade-in">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-widest text-primary">Onboarding Checklist</span>
+                <h3 className="text-lg font-bold tracking-tight text-foreground mt-0.5">Choose your primary AI Tutor style</h3>
+                <p className="text-xs text-muted-foreground">Pick a tutoring format. You can switch this at any point on the fly in Study Workspace.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                {[
+                  { id: "eli5", emoji: "🧒", label: "Explain Like I'm 5", desc: "Short sentences, simple analogies" },
+                  { id: "socratic", emoji: "🤔", label: "Socratic Coach", desc: "Question guided checkpoints" },
+                  { id: "real", emoji: "🌍", label: "Real-World Examples", desc: "Anchored to daily scenarios" },
+                  { id: "cram", emoji: "⚡", label: "Exam Cram Mode", desc: "Highest-yield facts, no fluff" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setLearningStyle(item.id)}
+                    className={`p-3 rounded-2xl text-left border flex flex-col justify-between transition-all ${
+                      style === item.id
+                        ? "border-primary bg-primary-soft/30 shadow-elev-1"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">{item.emoji}</span>
+                      <span className="text-xs font-bold text-foreground">{item.label}</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">{item.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer actions */}
+        <div className="flex items-center justify-between border-t border-border/60 pt-4 mt-auto">
+          {step > 1 ? (
             <button
-              onClick={onDone}
-              className="ripple inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-[12px] font-semibold shadow-elev-1 hover:shadow-glow transition-all"
+              onClick={handleBack}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-secondary"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              Let's go
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-4 w-4" />
+              <span>Back</span>
             </button>
-          </div>
+          ) : (
+            <button
+              onClick={onSkip}
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-secondary"
+            >
+              Skip Intro
+            </button>
+          )}
+
+          <button
+            onClick={handleNext}
+            className="ripple inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-xs font-bold shadow-elev-1 hover:shadow-glow transition-all"
+          >
+            <span>{step === 5 ? "Illuminate my study!" : "Continue"}</span>
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>
