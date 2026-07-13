@@ -15,6 +15,7 @@ import {
   Bell,
   Sun,
   Moon,
+  Globe,
 } from "lucide-react";
 import { LumioMark, LumioWordmark } from "@/components/Logo";
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +26,7 @@ import { Onboarding } from "@/components/Onboarding";
 type NavItem = {
   to:
     | "/lumio" | "/library" | "/study" | "/exams"
-    | "/billing" | "/settings" | "/profile";
+    | "/billing" | "/settings" | "/profile" | "/lumio-library";
   label: string;
   icon: typeof Home;
   group: "learn" | "library" | "account";
@@ -33,6 +34,7 @@ type NavItem = {
 
 const TRAY_NAV: NavItem[] = [
   { to: "/library", label: "Library", icon: FolderOpen, group: "library" },
+  { to: "/lumio-library", label: "Lumio Library", icon: Globe, group: "library" },
   { to: "/study", label: "Study", icon: BookOpenCheck, group: "learn" },
   { to: "/exams", label: "Take an exam", icon: GraduationCap, group: "learn" },
   { to: "/billing", label: "Billing", icon: CreditCard, group: "account" },

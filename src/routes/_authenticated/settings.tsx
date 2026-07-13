@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ShieldCheck, ShieldOff, Loader2, Mail, User as UserIcon, Sparkles, Zap, CreditCard, ArrowRight, Volume2 } from "lucide-react";
+import { ShieldCheck, ShieldOff, Loader2, Mail, User as UserIcon, Sparkles, Zap, CreditCard, ArrowRight, Volume2, GraduationCap, Award, Lock, BookOpen } from "lucide-react";
 import { getUsage } from "@/lib/exam.functions";
 import { planFor } from "@/lib/plans";
 import { loadVoicePrefs, saveVoicePrefs, getVoices, type VoicePrefs, speakableText } from "@/lib/voice";
@@ -130,6 +130,119 @@ function InnerAiUsageCard() {
   );
 }
 
+function StudentProfileCard() {
+  const [showPopup, setShowPopup] = useState(false);
+  const [major, setMajor] = useState("");
+  const [matric, setMatric] = useState("");
+  const [gradYear, setGradYear] = useState("2026");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowPopup(true);
+  };
+
+  return (
+    <section className="surface p-6 border border-dashed border-indigo-400/40 relative overflow-hidden">
+      <div className="absolute top-3 right-3 flex items-center gap-1.5">
+        <span className="text-[9px] uppercase tracking-widest font-extrabold px-2.5 py-1 rounded-full bg-indigo-500/15 text-indigo-500 animate-pulse">
+          Coming Soon
+        </span>
+      </div>
+
+      <h2 className="text-lg font-semibold flex items-center gap-2">
+        <GraduationCap className="h-5 w-5 text-indigo-500" /> Create Student Profile
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Link your student identity to access your school's private cohort textbooks and libraries directly.
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <span className="block text-xs font-semibold text-muted-foreground mb-1.5">Major / Department</span>
+            <input
+              value={major}
+              onChange={(e) => setMajor(e.target.value)}
+              placeholder="E.g., Computer Science"
+              className="w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
+              disabled
+            />
+          </div>
+          <div>
+            <span className="block text-xs font-semibold text-muted-foreground mb-1.5">University Matric / Student ID</span>
+            <input
+              value={matric}
+              onChange={(e) => setMatric(e.target.value)}
+              placeholder="E.g., 2024/CS/4820"
+              className="w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
+              disabled
+            />
+          </div>
+        </div>
+
+        <div>
+          <span className="block text-xs font-semibold text-muted-foreground mb-1.5">Expected Graduation Year</span>
+          <select
+            value={gradYear}
+            onChange={(e) => setGradYear(e.target.value)}
+            className="rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
+            disabled
+          >
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          className="ripple inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold shadow-elev-1 transition-all"
+        >
+          <Award className="h-4 w-4" />
+          <span>Register Student Profile</span>
+        </button>
+      </form>
+
+      {/* Pop-up Info modal */}
+      {showPopup && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-foreground/30 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md bg-popover rounded-3xl border border-border p-6 shadow-elev-3 space-y-4 animate-fade-up">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                <Lock className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">Verification Database Integration</h3>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mt-0.5">Development in Progress</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              We are currently establishing secure, real-time database links with school academic verification services. Once complete, registering your Student ID will dynamically verify your active status against your university's official Matric Roster to unlock private book downloads from the <span className="text-foreground font-semibold">Lumio Library</span>.
+            </p>
+
+            <div className="p-3 bg-secondary/50 rounded-xl text-[10px] text-muted-foreground flex gap-2">
+              <BookOpen className="h-4 w-4 text-indigo-500 shrink-0 mt-0.5" />
+              <p>Your data stays encrypted with secure access policies. We never share student metrics with unauthorized parties.</p>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setShowPopup(false)}
+                className="rounded-xl bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold hover:shadow-glow transition-all"
+              >
+                Understood, notify me
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function Settings() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -227,6 +340,7 @@ function Settings() {
 
       <AiUsageCard />
       <VoiceCard />
+      <StudentProfileCard />
 
       {/* Profile */}
       <section className="surface p-6">

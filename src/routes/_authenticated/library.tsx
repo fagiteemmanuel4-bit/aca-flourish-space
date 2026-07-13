@@ -5,10 +5,11 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BookOpen, FileText, GraduationCap, Download, Trash2, Loader2, Search,
-  Upload as UploadIcon, Pin, PinOff, Globe, Lock as LockIcon, Copy, X,
+  Upload as UploadIcon, Pin, PinOff, Globe, Lock as LockIcon, Copy, X, Sparkles, BookOpenCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { UploadDialog } from "@/components/UploadDialog";
+import { Link } from "@tanstack/react-router";
 
 const searchSchema = z.object({ type: z.enum(["notes", "homework", "exam"]).optional() });
 
@@ -121,21 +122,30 @@ function Library() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Link
+              to="/lumio-library"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-primary bg-primary-soft/30 hover:bg-primary-soft/50 rounded-xl px-3 py-1.5 transition-all shadow-elev-1 border border-primary/20"
+            >
+              <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+              <span>Search Lumio Library</span>
+            </Link>
+          </div>
           <h1 className="text-3xl font-bold tracking-tight">Library</h1>
           <p className="mt-1 text-sm text-muted-foreground">Your bookshelf — tap and hold a book for more.</p>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="flex items-center gap-2 rounded-full border border-input bg-card px-3 py-2 flex-1 sm:w-72 focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/40 transition-all">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+          <div className="flex items-center gap-2 rounded-full border border-input bg-card px-3 py-2 flex-1 md:w-64 focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/40 transition-all">
             <Search className="h-3.5 w-3.5 text-muted-foreground" />
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, subject…" className="w-full bg-transparent outline-none text-sm" />
           </div>
           <button
             onClick={() => setUploadOpen(true)}
-            className="ripple inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-4 py-2 text-sm font-semibold shadow-elev-1 hover:shadow-glow transition-all"
+            className="ripple inline-flex items-center justify-center gap-1.5 bg-primary text-primary-foreground rounded-full px-4 py-2.5 text-sm font-semibold shadow-elev-1 hover:shadow-glow transition-all"
           >
-            <UploadIcon className="h-4 w-4" /> Upload
+            <UploadIcon className="h-4 w-4" /> Upload Book
           </button>
         </div>
       </header>
