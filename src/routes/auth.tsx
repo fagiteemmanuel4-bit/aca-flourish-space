@@ -52,6 +52,13 @@ function AuthPage() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) navigate({ to: "/lumio", replace: true });
     });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        navigate({ to: "/lumio", replace: true });
+      }
+    });
+    return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
   const submit = async (e: React.FormEvent) => {
@@ -60,7 +67,11 @@ function AuthPage() {
     try {
       if (mode === "signup") {
         const parsed = signupSchema.safeParse(form);
-        if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+        if (!parsed.success) {
+          toast.error(parsed.error.issues[0].message);
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
@@ -71,7 +82,11 @@ function AuthPage() {
         navigate({ to: "/lumio", replace: true });
       } else {
         const parsed = signinSchema.safeParse(form);
-        if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+        if (!parsed.success) {
+          toast.error(parsed.error.issues[0].message);
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signInWithPassword({ email: parsed.data.email, password: parsed.data.password });
         if (error) throw error;
         const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
