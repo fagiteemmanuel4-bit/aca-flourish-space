@@ -371,6 +371,9 @@ export function StudyPage() {
         {/* ========================================= */}
         {/* INTERACTIVE AI STUDY ROADMAP COMPONENT */}
         {/* ========================================= */}
+        {roadmapOpen && !roadmapMinimized && (
+          <div className="fixed inset-0 z-[104] bg-background/95 backdrop-blur-sm animate-fade-in" />
+        )}
         {roadmapOpen && (
           <div
             className={`fixed z-[105] transition-all duration-300 ${

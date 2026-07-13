@@ -1,3 +1,20 @@
 User-agent: *
 Allow: /
+Allow: /auth
+Allow: /terms
+Allow: /privacy
+Allow: /disclaimer
+Allow: /refund
+Allow: /acceptable-use
+
+# Private routes disallowed
 Disallow: /_authenticated/
+Disallow: /study/
+Disallow: /library/
+Disallow: /exams/
+Disallow: /billing/
+Disallow: /settings/
+Disallow: /profile/
+Disallow: /sets/
+
+Sitemap: https://aca-flourish-space-37ms.vercel.app/sitemap.xml
